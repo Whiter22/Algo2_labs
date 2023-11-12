@@ -3,6 +3,12 @@
 #include <random>
 #include <string>
 #include <vector>
+#include <conio.h>
+
+struct Book{
+    int book_id;
+    std::string title;
+};
 
 template <typename T>
 struct Node{
@@ -31,101 +37,89 @@ class RBTree{
         delete_all_Nodes(node->right, remove_Node);
         remove_Node(node);
         size = 0;
+    }
+
+    void left_rotate(Node<T>* x) {
+        Node<T>* y = x->right;
+        x->right = y->left;
+        if (y->left != nullptr) {
+            y->left->parent = x;
+        }
+        y->parent = x->parent;
+        if (x->parent == nullptr) {
+            root = y;
+        }
+        else if (x == x->parent->left) {
+            x->parent->left = y;
+        }
+        else {
+            x->parent->right = y;
+        }
+        y->left = x;
+        x->parent = y;
+    }
+
+    void right_rotate(Node<T>* y) {
+        Node<T>* x = y->left;
+        y->left = x->right;
+        if (x->right != nullptr) {
+            x->right->parent = y;
+        }
+        x->parent = y->parent;
+        if (y->parent == nullptr) {
+            root = x;
+        }
+        else if (y == y->parent->left) {
+            y->parent->left = x;
+        }
+        else {
+            y->parent->right = x;
+        }
+        x->right = y;
+        y->parent = x;
     } 
 
-    left_rotate(Node<T>* node){
-        if(node->parent == root)
-            root = node;
-        else{
-            if(node->parent->parent->left == node->parent)
-                node->parent->parent->left = node;
-            else
-                node->parent->parent->right = node;
-        }
-
-        node->parent->right = node->left;
-        if(node->left != nullptr)
-            node->left->parent = node->parent;
-
-        node->left = node->parent;
-        
-        node->parent = node->parent->parent;
-        
-        node->parent->parent = node;
-    }
-
-    right_rotate(Node<T>* node){
-        if(node->parent == root)
-            root=node;
-        else{
-            if(node->parent->parent->left == node->parent)
-                node->parent->parent->left = node;
-            else
-                node->parent->parent->right = node;
-        }
-
-        node->parent->left = node->right;
-        if(node->right != nullptr)
-            node->right->parent = node->parent;
-
-        node->right = node->parent;
-
-        node->parent = node->parent->parent;
-
-        node->parent->parent = node;
-    }
-
-    bool get_color(Node<T>* node){
-        if(node==nullptr)
-            return 1;
-        else
-            return node->color;
-    }
-
-    void balance_tree(Node<T>* x_node){
-        std::cout << root->data << std::endl;
-        std::cout << x_node->data << std::endl;
-        while(x_node != root && get_color(x_node->parent) == 0){
-            if(x_node->parent->data < x_node->parent->parent->data){ //tu sie wykrzacza jak rodzic jest root'em wszedzie gdzie jest x_node->parent->parent i dziad jest rootem 
-                auto y = x_node->parent->parent->right;
-                if(get_color(y) == 0){
-                    x_node->parent->color = 1;
+    void balance_Tree(Node<T>* node) {
+        while (node != root && node->parent->color == 0) {
+            if (node->parent == node->parent->parent->left) {
+                auto y = node->parent->parent->right;
+                if (y != nullptr && y->color == 0) {
+                    node->parent->color = 1;
                     y->color = 1;
-                    x_node->parent->parent->color = 0;
-                    x_node = x_node->parent->parent;
-                }
-                else{
-                    if(x_node == x_node->parent->right){
-                        left_rotate(x_node);
-                        x_node = x_node->parent;
+                    node->parent->parent->color = 0;
+                    node = node->parent->parent;
+                } 
+                else {
+                    if (node == node->parent->right) {
+                        node = node->parent;
+                        left_rotate(node);
                     }
-                    x_node->parent->color = 1;
-                    x_node->parent->parent->color = 0;
-                    right_rotate(x_node->parent);
+                    node->parent->color = 1;
+                    node->parent->parent->color = 0;
+                    right_rotate(node->parent->parent);
+                }
+            } 
+            else {
+                auto y = node->parent->parent->left;
+                if (y != nullptr && y->color == 0) {
+                    node->parent->color = 1;
+                    y->color = 1;
+                    node->parent->parent->color = 0;
+                    node = node->parent->parent;
+                } 
+                else {
+                    if (node == node->parent->left) {
+                        node = node->parent;
+                        right_rotate(node);
+                    }
+                    node->parent->color = 1;
+                    node->parent->parent->color = 0;
+                    left_rotate(node->parent->parent);
                 }
             }
-            else{
-                auto y = x_node->parent->parent->left;
-                if(get_color(y) == 0){
-                    x_node->parent->color = 1;
-                    y->color = 1;
-                    x_node->parent->parent->color = 0;
-                    x_node = x_node->parent->parent;
-                }
-                else{
-                    if(x_node == x_node->parent->left){
-                        right_rotate(x_node);
-                        x_node = x_node->parent;
-                    }
-                    x_node->parent->color = 1;
-                    x_node->parent->parent->color = 0;
-                    left_rotate(x_node->parent);
-                }
-            }
-            root->color = 1;
         }
+        root->color = 1;
     }
-
 public:
     RBTree() : root(nullptr), size(0) {}
     
@@ -163,7 +157,7 @@ public:
         node->parent = temp;
         node->index = size;
 
-        balance_tree(node);
+        balance_Tree(node);
 
         size++;
     }
@@ -176,6 +170,36 @@ public:
         nodes.push_back(node);
         preorder_tree(node->left);
         preorder_tree(node->right);
+    }
+
+    void inorder_tree(Node<T>* node){
+        if(node==nullptr){
+            return;
+        }
+
+        inorder_tree(node->left);
+        nodes_inorder.push_back(node);
+        inorder_tree(node->right);
+    }
+
+    void clear_Tree(void (*remove_Node)(Node<T>*)){
+        delete_all_Nodes(root, remove_Node);
+
+        nodes.clear();
+        nodes_inorder.clear();
+    }
+
+    Node<T>* find_Node(T key, bool (*cmp)(T,T)){
+        auto node = root;
+        while(node != nullptr && node->data != key){
+            if(cmp(key, node->data))
+                node = node->right;
+            else
+                node = node->left;
+        }
+        if(node == nullptr)
+            return nullptr;
+        return node;
     }
 
     ///////////////////////////////////////////////////////////////////////
@@ -205,19 +229,28 @@ public:
         }
     }
 
+    bool get_color(Node<T>* node){
+        if(node==nullptr)
+            return 1;
+        else
+            return node->color;
+    }
+
 };
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 template <typename T>
 std::string show_Tree_obj(RBTree<T>* Tree){
     std::string to_return = "binary search tree: \n";
     to_return += "\tsize: " + std::to_string(Tree->get_size()) + "\n";
     to_return += "\theight: " + std::to_string(Tree->get_height(Tree->get_root())) + "\n";
+    to_return += "\t\t\t\tRED 0 : BLACK 1\n";
     to_return += "\t{\n";
 
     if(Tree->get_size()<=1000){
         for(auto node : Tree->get_vector()){
-            to_return += "\t\t(" + std::to_string(node->index) + ": ";
-            std::string parent_str = (node->parent == nullptr) ? "[p: NULL, " : "p: " + std::to_string(node->parent->index) + ", "; 
+            to_return += "\t\t(" + std::to_string(node->index) + ": [" + std::to_string(node->color) + ", ";
+            std::string parent_str = (node->parent == nullptr) ? "p: NULL, " : "p: " + std::to_string(node->parent->index) + ", "; 
             std::string left_str = (node->left == nullptr) ? "l: NULL, " : "l: " + std::to_string(node->left->index) + ", ";
             std::string right_str = (node->right == nullptr) ? "r: NULL], " : "r: " + std::to_string(node->right->index) + "], "; 
 
@@ -228,8 +261,8 @@ std::string show_Tree_obj(RBTree<T>* Tree){
         int i;
         auto node = Tree->get_vector();
         for(i=0;i<50;i++){
-            to_return += "\t\t(" + std::to_string(node[i]->index) + ": ";
-            std::string parent_str = (node[i]->parent == nullptr) ? "[p: NULL, " : "p: " + std::to_string(node[i]->parent->index) + ", "; 
+            to_return += "\t\t(" + std::to_string(node[i]->index) + ": [" + std::to_string(node[i]->color) + ", ";
+            std::string parent_str = (node[i]->parent == nullptr) ? "p: NULL, " : "p: " + std::to_string(node[i]->parent->index) + ", "; 
             std::string left_str = (node[i]->left == nullptr) ? "l: NULL, " : "l: " + std::to_string(node[i]->left->index) + ", ";
             std::string right_str = (node[i]->right == nullptr) ? "r: NULL], " : "r: " + std::to_string(node[i]->right->index) + "], "; 
 
@@ -241,20 +274,129 @@ std::string show_Tree_obj(RBTree<T>* Tree){
     return to_return;
 }
 
+std::string show_Tree_obj(RBTree<Book*>* Tree){
+    std::string to_return = "binary search tree: \n";
+    to_return += "\tsize: " + std::to_string(Tree->get_size()) + "\n";
+    to_return += "\theight: " + std::to_string(Tree->get_height(Tree->get_root())) + "\n";
+    to_return += "\t\t\t\tRED 0 : BLACK 1\n";
+    to_return += "\t{\n";
+    if(Tree->get_size()<=1000){
+        for(auto node : Tree->get_vector()){
+            to_return += "\t\t(" + std::to_string(node->index) + ": [" + std::to_string(node->color) + ", ";;
+            std::string parent_str = (node->parent == nullptr) ? "[p: NULL, " : "p: " + std::to_string(node->parent->index) + ", "; 
+            std::string left_str = (node->left == nullptr) ? "l: NULL, " : "l: " + std::to_string(node->left->index) + ", ";
+            std::string right_str = (node->right == nullptr) ? "r: NULL], " : "r: " + std::to_string(node->right->index) + "], "; 
+
+            to_return += parent_str + left_str + right_str + "data: " + node->data->title + ")\n"; 
+        }
+        to_return += "\t}";
+    } else{
+        int i;
+        auto node = Tree->get_vector();
+        for(i=0;i<50;i++){
+            to_return += "\t\t(" + std::to_string(node[i]->index) + ": [" + std::to_string(node[i]->color) + ", ";;
+            std::string parent_str = (node[i]->parent == nullptr) ? "[p: NULL, " : "p: " + std::to_string(node[i]->parent->index) + ", "; 
+            std::string left_str = (node[i]->left == nullptr) ? "l: NULL, " : "l: " + std::to_string(node[i]->left->index) + ", ";
+            std::string right_str = (node[i]->right == nullptr) ? "r: NULL], " : "r: " + std::to_string(node[i]->right->index) + "], "; 
+
+            to_return += parent_str + left_str + right_str + "data: " + node[i]->data->title + ")\n"; 
+        }
+        to_return += "\t}";
+        to_return += "\tShowed first: " + std::to_string(i++) + " elements of " + std::to_string(Tree->get_size()) + " possible";
+    }
+    return to_return;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void remove_Node(Node<int>* node){ delete node; }
+
+void remove_Node(Node<Book*>* node){ 
+    delete node->data; 
+    delete node;
+}
+
 bool comparator(char a, char b){ return a>b; };
 
 bool comparator(int a, int b){ return a>b; }
 
+double height_to_dsize(int height, int size){ return height/size; }
+
+double height_to_log_size(int height, int log_p2){ return height/log_p2; }
+
 int main(){
-    std::string res;
+        //adding
+    std::string result;
+    const int MAX_ORDER = 7;
     auto T0 = new RBTree<int>();
-    std::vector<int> a ={55,69,62,57,35,83,72,74};
 
-    for(int i=0; i<8; i++)
-        T0->add_Node(a[i], comparator);
+    for(int o=1; o<=MAX_ORDER; o++){
+        const int n = pow(10, o);
 
-    res = T0->show_Tree(show_Tree_obj);
-    std::cout << res << '\n';
-    std::cout << "XPP" << std::endl;
-    return 0;
+        clock_t t1 = clock();
+        for(int i=0; i<n; i++)
+            T0->add_Node((rand()<<15)+rand(), comparator);
+        clock_t t2 = clock();
+        // T0->preorder_tree(T0->get_root());
+        result = T0->show_Tree(show_Tree_obj);
+        std::cout << result << std::endl;
+
+        double full_time = double(t2-t1)/double(CLOCKS_PER_SEC);
+        std::cout << "Full time spent on adding to Tree: " << full_time*1000 << " ms" << std::endl;
+        std::cout << "\n";
+        //searching
+        const int m = pow(10, 4);
+        int hits = 0;
+        int rand_num;
+        t1=clock();
+        for(int i=0;i<m;i++){
+            rand_num = rand();
+            auto result = T0->find_Node(rand_num, comparator);
+            if(result != nullptr)
+                hits++;
+        }
+        t2=clock();
+        double full_time1 = double(t2-t1)/double(CLOCKS_PER_SEC);
+
+        std::cout << "Full time spent on searching: " << full_time1*1000 << " ms" << std::endl;
+        std::cout << "Hits: " << hits << std::endl;
+
+        double height_size = height_to_dsize(T0->get_height(T0->get_root()), T0->get_size());
+        double log2_size = log2(T0->get_size());
+        double height_logdsize = height_to_log_size(T0->get_height(T0->get_root()), log2_size);
+
+        std::cout << "Height to size ratio: " << height_size << '\n';
+        std::cout << "Log2 data size: " << log2_size << '\n';
+        std::cout << "Height to log2 data size: " << height_logdsize << '\n';
+
+        _getch();
+    }
+    T0->clear_Tree(remove_Node);
+    delete T0;
+
+    // std::string res;
+    // auto T0 = new RBTree<int>();
+    // std::vector<int> a ={55,69,62,57,35,83,72,74};
+
+    // for(int i=0; i<8; i++)
+    //     T0->add_Node(a[i], comparator);
+
+    // res = T0->show_Tree(show_Tree_obj);
+    // std::cout << res << '\n';
+    // std::cout << "XPP" << std::endl;
+
+    // auto x = T0->get_vector();
+
+    // for(auto j : x){
+    //     std::cout << j->data << " ";
+    // }
+    // std::cout << std::endl;
+
+    // auto result = T0->find_Node(83, comparator);
+    // std::cout << result->data <<std::endl;
+
+    // T0->clear_Tree(remove_Node);
+    // delete T0;
+    // return 0;
+    std::cout << "END" << std::endl;
 }
