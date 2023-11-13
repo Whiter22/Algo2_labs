@@ -59,24 +59,24 @@ class RBTree{
         x->parent = y;
     }
 
-    void right_rotate(Node<T>* y) {
-        Node<T>* x = y->left;
-        y->left = x->right;
-        if (x->right != nullptr) {
-            x->right->parent = y;
+    void right_rotate(Node<T>* x) {
+        Node<T>* y = x->left;
+        x->left = y->right;
+        if (y->right != nullptr) {
+            y->right->parent = x;
         }
-        x->parent = y->parent;
-        if (y->parent == nullptr) {
-            root = x;
+        y->parent = x->parent;
+        if (x->parent == nullptr) {
+            root = y;
         }
-        else if (y == y->parent->left) {
-            y->parent->left = x;
+        else if (x == x->parent->left) {
+            x->parent->left = y;
         }
         else {
-            y->parent->right = x;
+            x->parent->right = y;
         }
-        x->right = y;
-        y->parent = x;
+        y->right = x;
+        x->parent = y;
     } 
 
     void balance_Tree(Node<T>* node) {
@@ -202,7 +202,7 @@ public:
         return node;
     }
 
-    ///////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     std::string show_Tree(std::string (*show_tree)(RBTree<T>*)){ 
         this->preorder_tree(root);
@@ -316,34 +316,39 @@ void remove_Node(Node<Book*>* node){
     delete node;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 bool comparator(char a, char b){ return a>b; };
 
 bool comparator(int a, int b){ return a>b; }
 
-double height_to_dsize(int height, int size){ return height/size; }
+bool comparator(Book* a, Book* b){ return a->book_id>b->book_id; }
 
-double height_to_log_size(int height, int log_p2){ return height/log_p2; }
+double height_to_dsize(int height, int size){ return static_cast<double>(height)/size; }
 
-int main(){
-        //adding
+double height_to_log_size(int height, int log_p2){ return static_cast<double>(height)/log_p2; }
+
+int main(){ 
+    // for ints
     std::string result;
     const int MAX_ORDER = 7;
     auto T0 = new RBTree<int>();
 
     for(int o=1; o<=MAX_ORDER; o++){
         const int n = pow(10, o);
-
+        //adding
         clock_t t1 = clock();
         for(int i=0; i<n; i++)
             T0->add_Node((rand()<<15)+rand(), comparator);
         clock_t t2 = clock();
         // T0->preorder_tree(T0->get_root());
         result = T0->show_Tree(show_Tree_obj);
-        std::cout << result << std::endl;
+        std::cout << result << '\n' << "\tFor size: " << n << std::endl;
 
         double full_time = double(t2-t1)/double(CLOCKS_PER_SEC);
-        std::cout << "Full time spent on adding to Tree: " << full_time*1000 << " ms" << std::endl;
         std::cout << "\n";
+        std::cout << "Full time spent on adding to Tree: " << full_time*1000 << " ms" << std::endl;
+        
         //searching
         const int m = pow(10, 4);
         int hits = 0;
@@ -374,6 +379,96 @@ int main(){
     T0->clear_Tree(remove_Node);
     delete T0;
 
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // auto T2 = new RBTree<char>;
+    // std::string str_tree;
+    // std::string letters = "abcdefghijklmnopqrstuvwxyz";
+
+    // for(int i=0; i<10; i++)
+    //     T2->add_Node(letters[rand()%26], comparator);
+
+    // str_tree = T2->show_Tree(show_Tree_obj);
+    // std::cout << str_tree << std::endl;
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    //for Books
+    // auto T1 = new RBTree<Book*>;
+    // std::string str_tree;
+    //  std::string letters = "abcdefghijklmnopqrstuvwxyz";
+    // for(int i=0;i<10;i++){
+    //     Book* book = new Book;
+    //     book->book_id = rand();
+    //     int rand_index = rand() % letters.length();
+    //     book->title = letters[rand_index];
+    //     T1->add_Node(book, comparator);
+    // }
+
+    // str_tree = T1->show_Tree(show_Tree_obj);
+    // std::cout << str_tree << std::endl;
+
+
+    // const int MAX_ORDER = 7;
+    // std::string result;
+    // // auto T0 = new RBTree<int>();
+
+    // for(int o=1; o<=MAX_ORDER; o++){
+    //     const int n = pow(10, o);
+
+    //     clock_t t1 = clock();
+    //     for(int i=0;i<n;i++){
+    //         Book* book = new Book;
+    //         book->book_id = rand();
+    //         int rand_index = rand() % letters.length();
+    //         book->title = letters[rand_index];
+    //         T1->add_Node(book, comparator);
+    //     }
+    //     // for(int i=0; i<n; i++)
+    //     //     T0->add_Node((rand()<<15)+rand(), comparator);
+    //     clock_t t2 = clock();
+    //     // T0->preorder_tree(T0->get_root());
+    //     result = T1->show_Tree(show_Tree_obj);
+    //     std::cout << result << '\n' << "\tFor size: " << n << std::endl;
+
+    //     double full_time = double(t2-t1)/double(CLOCKS_PER_SEC);
+    //     std::cout << "\n";
+    //     std::cout << "Full time spent on adding to Tree: " << full_time*1000 << " ms" << std::endl;
+        
+    //     //searching
+    //     const int m = pow(10, 4);
+    //     int hits = 0;
+    //     int rand_num;
+    //     t1=clock();
+    //     for(int i=0;i<m;i++){
+    //         Book* book = new Book;
+    //         book->book_id = rand();
+    //         int rand_index = rand() % letters.length();
+    //         auto result = T1->find_Node(book, comparator);
+    //         if(result != nullptr)
+    //             hits++;
+    //     }
+    //     t2=clock();
+    //     double full_time1 = double(t2-t1)/double(CLOCKS_PER_SEC);
+
+    //     std::cout << "Full time spent on searching: " << full_time1*1000 << " ms" << std::endl;
+    //     std::cout << "Hits: " << hits << std::endl;
+
+    //     double height_size = height_to_dsize(T1->get_height(T1->get_root()), T1->get_size());
+    //     double log2_size = log2(T1->get_size());
+    //     double height_logdsize = height_to_log_size(T1->get_height(T1->get_root()), log2_size);
+
+    //     std::cout << "Height to size ratio: " << height_size << '\n';
+    //     std::cout << "Log2 data size: " << log2_size << '\n';
+    //     std::cout << "Height to log2 data size: " << height_logdsize << '\n';
+
+    //     _getch();
+    // }
+    // T1->clear_Tree(remove_Node);
+    // delete T1;
+
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // std::string res;
     // auto T0 = new RBTree<int>();
     // std::vector<int> a ={55,69,62,57,35,83,72,74};
@@ -398,5 +493,5 @@ int main(){
     // T0->clear_Tree(remove_Node);
     // delete T0;
     // return 0;
-    std::cout << "END" << std::endl;
+    // std::cout << "END" << std::endl;
 }
