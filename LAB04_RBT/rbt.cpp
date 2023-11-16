@@ -187,6 +187,7 @@ public:
 
         nodes.clear();
         nodes_inorder.clear();
+        root = nullptr;
     }
 
     Node<T>* find_Node(T key, bool (*cmp)(T,T)){
@@ -335,6 +336,7 @@ int main(){
     auto T0 = new RBTree<int>();
 
     for(int o=1; o<=MAX_ORDER; o++){
+        // auto T0 = new RBTree<int>();
         const int n = pow(10, o);
         //adding
         clock_t t1 = clock();
@@ -375,9 +377,13 @@ int main(){
         std::cout << "Height to log2 data size: " << height_logdsize << '\n';
 
         _getch();
+        T0->clear_Tree(remove_Node); 
+        // delete T0;
     }
-    T0->clear_Tree(remove_Node);
+    // T0->clear_Tree(remove_Node);
     delete T0;
+    std::cout << "END" << std::endl;
+    return 0;
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -399,7 +405,7 @@ int main(){
     //  std::string letters = "abcdefghijklmnopqrstuvwxyz";
     // for(int i=0;i<10;i++){
     //     Book* book = new Book;
-    //     book->book_id = rand();
+    //     book->book_id = (rand()<<15)+rand();
     //     int rand_index = rand() % letters.length();
     //     book->title = letters[rand_index];
     //     T1->add_Node(book, comparator);
@@ -442,11 +448,12 @@ int main(){
     //     t1=clock();
     //     for(int i=0;i<m;i++){
     //         Book* book = new Book;
-    //         book->book_id = rand();
+    //         book->book_id = (rand()<<15)+rand();
     //         int rand_index = rand() % letters.length();
     //         auto result = T1->find_Node(book, comparator);
     //         if(result != nullptr)
     //             hits++;
+    //         delete book;
     //     }
     //     t2=clock();
     //     double full_time1 = double(t2-t1)/double(CLOCKS_PER_SEC);
@@ -463,10 +470,12 @@ int main(){
     //     std::cout << "Height to log2 data size: " << height_logdsize << '\n';
 
     //     _getch();
+        // T1->clear_Tree(remove_Node); 
     // }
     // T1->clear_Tree(remove_Node);
     // delete T1;
-
+    // std::cout << "END" << std::endl;
+    // return 0;
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // std::string res;
