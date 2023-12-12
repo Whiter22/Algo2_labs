@@ -50,6 +50,23 @@ void counting_sort(std::vector<int>& arr, int max){
     }
 }
 
+template <typename T>
+void insertion_sort(std::vector<T>& arr, bool (*cmp)(T, T)) {
+    int n = arr.size();
+    for (int i = 1; i < n; ++i) {
+        T key = arr[i];
+        int j = i - 1;
+
+        while (j >= 0 && cmp(arr[j], key)) {
+            arr[j + 1] = arr[j];
+            --j;
+        }
+
+        arr[j + 1] = key;
+    }
+}
+
+
 void bucket_sort(std::vector<int>& arr, double n, double m){
     int bucket_ind;
     double w = m/n;
@@ -84,7 +101,7 @@ void bucket_sort(std::vector<T>& arr, double n, double m, double (*get_val)(T), 
     }
 
     for(auto& array : buckets){
-        std::stable_sort(array.begin(), array.end(), cmp);
+        insertion_sort(array, cmp);
     }
 
     arr.clear();
@@ -267,7 +284,7 @@ int main(){
         std::cout << "\n---------------------------------------------------------------------------------------------------------------" << std::endl;
 
         t1 = clock();
-        bucket_sort(some_vec1, double(some_vec1.size()), 1.0, getKey, comparator1);
+        bucket_sort(some_vec1, double(some_vec1.size()), 1.0, getKey, comparator);
         t2 = clock();
 
         std::cout << "\t\nBucket sort: \n";
