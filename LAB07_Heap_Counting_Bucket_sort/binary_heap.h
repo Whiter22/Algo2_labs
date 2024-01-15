@@ -118,15 +118,31 @@ public:
         return max;
     }
 
-    void heap_sort(bool (*cmp)(T,T)){
-        std::vector<T> temp;
+    T remove_greatest1(bool (*cmp)(T, T)){
+        if(arr.size() == 0)
+            return T();
 
-        for(T elements : arr){
-            temp.push_back(remove_greatest(cmp));
+        T max = arr[0];
+
+        arr[0] = arr[arr.size()-1];
+        // arr.pop_back();
+
+        digging_down(0, cmp);
+
+        return max;
+    }
+
+    void heap_sort(bool (*cmp)(T,T)){
+        // std::vector<T> temp;
+
+        for(int i=0; i<arr.size(); i++){
+            // temp.push_back(remove_greatest(cmp));
+            T temp = remove_greatest1(cmp);
+            arr[arr.size()-i-1] = temp;
         }
 
-        arr.clear();
-        arr = temp;
+        // arr.clear();
+        // arr = temp;
     }
 
     void clear_heap(){ arr.clear(); }
